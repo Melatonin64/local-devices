@@ -21,7 +21,7 @@ const options = {
 /**
  * Finds all local devices (ip and mac address) connected to the current network.
  */
-module.exports = function findLocalDevices ({ address = '', skipNameResolution = false, arpPath = 'arp' } = {}) {
+module.exports = function findLocalDevices ({ address = '', skipNameResolution = false, arpPath = 'arp', port = 80 } = {}) {
   var key = String(address)
 
   if (isRange(address)) {
@@ -38,9 +38,9 @@ module.exports = function findLocalDevices ({ address = '', skipNameResolution =
 
   if (!lock[key]) {
     if (!address || isRange(key)) {
-      lock[key] = pingServers().then(() => arpAll(skipNameResolution, arpPath)).then(unlock(key))
+      lock[key] = pingServers(port).then(() => arpAll(skipNameResolution, arpPath)).then(unlock(key))
     } else {
-      lock[key] = pingServer(address).then(address => arpOne(address, arpPath)).then(unlock(key))
+      lock[key] = pingServer(address, port).then(address => arpOne(address, arpPath)).then(unlock(key))
     }
   }
 
@@ -77,18 +77,18 @@ function getServers () {
 /**
  * Sends a ping to all servers to update the arp table.
  */
-function pingServers () {
-  return Promise.all(servers.map(pingServer))
+function pingServers (port) {
+  return Promise.all(servers.map((address) => pingServer(address, port)))
 }
 
 /**
  * Pings an individual server to update the arp table.
  */
-function pingServer (address) {
+function pingServer (address, port) {
   return new Promise(function (resolve) {
     var socket = new net.Socket()
     socket.setTimeout(1000, close)
-    socket.connect(80, address, close)
+    socket.connect(port, address, close)
     socket.once('error', close)
 
     function close () {
