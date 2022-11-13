@@ -101,6 +101,18 @@ find({ arpPath: '/usr/sbin/arp' }).then(devices => {
     ]
     */
 })
+
+// Find all devices, pinging given port (default 80) 
+find({ port: 8080 }).then(devices => {
+    devices /*
+    [
+      { name: '?', ip: '192.168.0.10', mac: '...' },
+      { name: '?', ip: '192.168.0.50', mac: '...' },
+      { name: '?', ip: '192.168.0.155', mac: '...' },
+      { name: '?', ip: '192.168.0.211', mac: '...' }
+    ]
+    */
+})
 ```
 
 ## Contributions
